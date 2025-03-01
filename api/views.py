@@ -55,3 +55,12 @@ class TaskUpdateDeleteAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Task.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request: Request, id: int) -> Response:
+        """Delete a specific task"""
+        try:
+            task = Task.objects.get(id=id)
+            task.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Task.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

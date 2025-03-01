@@ -59,3 +59,14 @@ class TaskAPITest(APITestCase):
         is_valid_dimension, is_grayscale = validate_processed_image(task.photo.path)
         self.assertTrue(is_valid_dimension, "Image exceeds maximum dimension allowed")
         self.assertTrue(is_grayscale, "Image is not grayscale")
+
+    def test_delete_task(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Ensure the task was deleted
+        self.assertEqual(Task.objects.filter(id=self.task_id).count(), 0)
+
+    def test_delete_nonexistent_task(self):
+        response = self.client.delete(self.invalid_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
