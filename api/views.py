@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -64,3 +65,19 @@ class TaskUpdateDeleteAPIView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Task.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class TaskNearestDeadlineAPIView(APIView):
+    serializer_class = TaskSerializer
+
+    def get(self, request: Request) -> Response:
+        """Finds a task with the nearest deadline"""
+
+        # Filter out tasks without deadline, sort them
+        tasks = Task.objects.filter(due_date__isnull=False).order_by("due_date")
+
+        # Filter out tasks in the past, get the first
+        nearest = tasks.filter(due_date__gt=timezone.now()).first()
+
+        serializer = TaskSerializer(nearest)
+        return Response(serializer.data)

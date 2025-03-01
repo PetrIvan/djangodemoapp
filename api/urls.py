@@ -8,4 +8,9 @@ urlpatterns = [
         views.TaskUpdateDeleteAPIView.as_view(),
         name="task-update-delete",
     ),
+    path(
+        "tasks/nearest-deadline/",
+        views.TaskNearestDeadlineAPIView.as_view(),
+        name="task-nearest-deadline",
+    ),
 ]
