@@ -1,14 +1,12 @@
 import tempfile
-import numpy as np
-import cv2 as cv
 
 from django.urls import reverse
 from django.test import override_settings
-from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from ..models import Task
+from .task_factory import prepare_dummy_image, validate_processed_image
 
 
 @override_settings(MEDIA_ROOT=tempfile.gettempdir())
@@ -32,18 +30,9 @@ class TaskAPITest(APITestCase):
         self.assertEqual(response.data["title"], payload["title"])
 
     def test_create_task_with_photo(self):
-        # Prepare a dummy image and payload
-        img = np.random.randint(0, 256, (1920, 1080, 3), dtype=np.uint8)
-        _, img_encoded = cv.imencode(".jpg", img)
-        image_bytes = img_encoded.tobytes()
-
-        image_file = SimpleUploadedFile(
-            "test.jpg", image_bytes, content_type="image/jpeg"
-        )
-
         payload = {
             "title": "A test task with a photo",
-            "photo": image_file,
+            "photo": prepare_dummy_image(),
         }
 
         # Verify that task creation works
@@ -56,9 +45,6 @@ class TaskAPITest(APITestCase):
         self.assertIsNotNone(task)
         self.assertIsNotNone(task.photo)
 
-        processed_img = cv.imread(task.photo.path, cv.IMREAD_UNCHANGED)
-
-        h, w = processed_img.shape[:2]
-        self.assertLessEqual(h, 800, "Height exceeds 800px")
-        self.assertLessEqual(w, 800, "Width exceeds 800px")
-        self.assertEqual(len(processed_img.shape), 2, "Image is not grayscale")
+        is_valid_dimension, is_grayscale = validate_processed_image(task.photo.path)
+        self.assertTrue(is_valid_dimension, "Image exceeds maximum dimension allowed")
+        self.assertTrue(is_grayscale, "Image is not grayscale")
