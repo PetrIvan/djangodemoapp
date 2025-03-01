@@ -46,3 +46,16 @@ class TaskListCreateAPIView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TaskUpdateDeleteAPIView(APIView):
+    """Handles operations on a specific task"""
+
+    def get(self, request, id):
+        """Retrieve a specific task"""
+        try:
+            task = Task.objects.get(id=id)
+            serializer = TaskSerializer(task)
+            return Response(serializer.data)
+        except Task.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
