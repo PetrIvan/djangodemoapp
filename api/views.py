@@ -32,11 +32,26 @@ class TaskListCreateAPIView(APIView):
 class TaskUpdateDeleteAPIView(APIView):
     """Handles operations on a specific task"""
 
+    serializer_class = TaskSerializer
+
     def get(self, request: Request, id: int) -> Response:
         """Retrieve a specific task"""
         try:
             task = Task.objects.get(id=id)
             serializer = TaskSerializer(task)
             return Response(serializer.data)
+        except Task.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request: Request, id: int) -> Response:
+        """Update a specific task"""
+        try:
+            task = Task.objects.get(id=id)
+            serializer = TaskSerializer(task, data=request.data)
+            if serializer.is_valid():
+                task = serializer.save()
+                process_task_image(task)
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Task.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
