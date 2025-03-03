@@ -1,3 +1,5 @@
+import heapq
+
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.request import Request
@@ -5,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Task
-from .serializers import TaskSerializer, RotateArraySerializer
+from .serializers import TaskSerializer, RotateArraySerializer, KthLargestSerializer
 from .image_processing import process_task_image
 
 
@@ -97,3 +99,28 @@ class RotateArrayAPIView(APIView):
         nums = nums[-k:] + nums[:-k]
 
         return Response({"result": nums}, status=status.HTTP_200_OK)
+
+
+class KthLargestAPIView(APIView):
+    serializer_class = KthLargestSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = KthLargestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        nums: list[int] = serializer.data["nums"]
+        k: int = serializer.data["k"]
+        top_k: list[int] = []
+
+        for num in nums:
+            # Add the number to the heap
+            heapq.heappush(top_k, num)
+
+            # Pop the smallest one, leaving just the top k
+            if len(top_k) > k:
+                heapq.heappop(top_k)
+
+        # Since we have just the top k elements, the smallest one is kth largest
+        kth_largest = heapq.heappop(top_k)
+        return Response({"result": kth_largest}, status=status.HTTP_200_OK)

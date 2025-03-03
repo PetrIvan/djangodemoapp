@@ -18,4 +18,9 @@ urlpatterns = [
         views.RotateArrayAPIView.as_view(),
         name="rotate-array",
     ),
+    path(
+        "leetcode/kth-largest",
+        views.KthLargestAPIView.as_view(),
+        name="kth-largest",
+    ),
 ]

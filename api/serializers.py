@@ -11,3 +11,8 @@ class TaskSerializer(serializers.ModelSerializer):
 class RotateArraySerializer(serializers.Serializer):
     nums = serializers.ListField(child=serializers.IntegerField())
     k = serializers.IntegerField()
+
+
+class KthLargestSerializer(serializers.Serializer):
+    nums = serializers.ListField(child=serializers.IntegerField())
+    k = serializers.IntegerField()
