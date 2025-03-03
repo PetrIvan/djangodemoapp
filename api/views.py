@@ -7,7 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Task
-from .serializers import TaskSerializer, RotateArraySerializer, KthLargestSerializer
+from .serializers import (
+    TaskSerializer,
+    RotateArraySerializer,
+    KthLargestSerializer,
+    LongestIncreasingPathSerializer,
+)
 from .image_processing import process_task_image
 
 
@@ -124,3 +129,44 @@ class KthLargestAPIView(APIView):
         # Since we have just the top k elements, the smallest one is kth largest
         kth_largest = heapq.heappop(top_k)
         return Response({"result": kth_largest}, status=status.HTTP_200_OK)
+
+
+class LongestIncreasingPathAPIView(APIView):
+    serializer_class = LongestIncreasingPathSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = LongestIncreasingPathSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        matrix: list[list[int]] = serializer.data["matrix"]
+
+        # Find the longest path using DFS and dynamic programming
+        rows, cols = len(matrix), len(matrix[0])
+        cache: list[list[int]] = [[-1] * cols for _ in range(rows)]
+
+        def dfs(r: int, c: int) -> int:
+            # Return if already explored
+            if cache[r][c] != -1:
+                return cache[r][c]
+
+            # Explore the neighboring cells
+            max_length = 1
+            if r + 1 < rows:
+                if matrix[r + 1][c] > matrix[r][c]:
+                    max_length = max(max_length, dfs(r + 1, c) + 1)
+            if r - 1 >= 0:
+                if matrix[r - 1][c] > matrix[r][c]:
+                    max_length = max(max_length, dfs(r - 1, c) + 1)
+            if c + 1 < cols:
+                if matrix[r][c + 1] > matrix[r][c]:
+                    max_length = max(max_length, dfs(r, c + 1) + 1)
+            if c - 1 >= 0:
+                if matrix[r][c - 1] > matrix[r][c]:
+                    max_length = max(max_length, dfs(r, c - 1) + 1)
+
+            cache[r][c] = max_length
+            return max_length
+
+        longest_path = max(dfs(r, c) for r in range(rows) for c in range(cols))
+        return Response({"result": longest_path}, status=status.HTTP_200_OK)

@@ -23,4 +23,9 @@ urlpatterns = [
         views.KthLargestAPIView.as_view(),
         name="kth-largest",
     ),
+    path(
+        "leetcode/longest-increasing-path",
+        views.LongestIncreasingPathAPIView.as_view(),
+        name="longest-increasing-path",
+    ),
 ]
