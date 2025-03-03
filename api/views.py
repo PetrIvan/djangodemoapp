@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Task
-from .serializers import TaskSerializer
+from .serializers import TaskSerializer, RotateArraySerializer
 from .image_processing import process_task_image
 
 
@@ -81,3 +81,19 @@ class TaskNearestDeadlineAPIView(APIView):
 
         serializer = TaskSerializer(nearest)
         return Response(serializer.data)
+
+
+class RotateArrayAPIView(APIView):
+    serializer_class = RotateArraySerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = RotateArraySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        nums: list[int] = serializer.data["nums"]
+        k: int = serializer.data["k"] % len(nums)
+
+        nums = nums[-k:] + nums[:-k]
+
+        return Response({"result": nums}, status=status.HTTP_200_OK)

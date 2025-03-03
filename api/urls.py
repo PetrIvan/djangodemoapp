@@ -13,4 +13,9 @@ urlpatterns = [
         views.TaskNearestDeadlineAPIView.as_view(),
         name="task-nearest-deadline",
     ),
+    path(
+        "leetcode/rotate-array",
+        views.RotateArrayAPIView.as_view(),
+        name="rotate-array",
+    ),
 ]
