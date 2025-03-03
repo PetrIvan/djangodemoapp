@@ -1,6 +1,11 @@
 # Use the official Python runtime image
 FROM python:3.13-slim
 
+# Install dependencies for OpenCV
+RUN apt-get update && \
+    apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender1 && \
+    apt-get clean
+
 # Create the app directory
 RUN mkdir /app
 
@@ -10,14 +15,14 @@ WORKDIR /app
 # Set environment variables 
 # Prevents Python from writing pyc files to disk
 ENV PYTHONDONTWRITEBYTECODE=1
-#Prevents Python from buffering stdout and stderr
-ENV PYTHONUNBUFFERED=1 
+# Prevents Python from buffering stdout and stderr
+ENV PYTHONUNBUFFERED=1
 
 # Upgrade pip
 RUN pip install --upgrade pip 
 
-# Copy the Django project  and install dependencies
-COPY requirements.txt  /app/
+# Copy the Django project and install dependencies
+COPY requirements.txt /app/
 
 # Run this command to install all dependencies 
 RUN pip install --no-cache-dir -r requirements.txt
