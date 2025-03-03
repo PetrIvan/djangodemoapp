@@ -14,17 +14,17 @@ urlpatterns = [
         name="task-nearest-deadline",
     ),
     path(
-        "leetcode/rotate-array",
+        "leetcode/rotate-array/",
         views.RotateArrayAPIView.as_view(),
         name="rotate-array",
     ),
     path(
-        "leetcode/kth-largest",
+        "leetcode/kth-largest/",
         views.KthLargestAPIView.as_view(),
         name="kth-largest",
     ),
     path(
-        "leetcode/longest-increasing-path",
+        "leetcode/longest-increasing-path/",
         views.LongestIncreasingPathAPIView.as_view(),
         name="longest-increasing-path",
     ),
